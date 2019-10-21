@@ -129,7 +129,7 @@ class Promizehome extends React.Component {
             var incanvas = obj ? true : false;
             if (incanvas) {
                 obj.set(textJsonObj);
-                //this.textOverlay(obj)
+                this.textOverlay(obj)
                 layering(promizeCanvas);
             } else {
                 var obj = new fabric.Textbox(objectDetail['text'], textJsonObj);
@@ -137,7 +137,7 @@ class Promizehome extends React.Component {
                 promizeCanvas.add(obj);
                 layering(promizeCanvas);
                 promizeCanvas.renderAll();
-                //this.textOverlay(obj)
+                this.textOverlay(obj)
             }
         }
     }
@@ -153,8 +153,12 @@ class Promizehome extends React.Component {
         //     .on('object:added', e => canvasObjectCallback(e.target, "added"))
 
         var textLimit = this.textLimit;
-
-        promizeCanvas.on('object:modified', function (data) {
+        var textOverlay = this.textOverlay
+        promizeCanvas.on('object:moving', function (data) {
+            textOverlay(data.target)
+        }).on('object:scaling', function (data) {
+            textOverlay(data.target)
+        }).on('object:modified', function (data) {
             var obj = data.target;
             var objTop = obj.top;
             var objLeft = obj.left;
@@ -357,9 +361,10 @@ class Promizehome extends React.Component {
 
 
     textOverlay(obj) {
+        console.log("objobj",obj)
         obj.setCoords();
         console.log(obj)
-        if (obj.clipPath != "") {
+        if (obj.promizeClip) {
             obj.clipTo = function (ctx) {
                 var scaleXTo1 = 1 / this.scaleX; // Todo: this
                 var scaleYTo1 = 1 / this.scaleY; // Todo: this
@@ -438,6 +443,7 @@ class Promizehome extends React.Component {
             underline: textSetting['underline'],
             bringToFront: true,
             editable: false,
+            promizeClip: true,
             selectable: true,
             hasControls: textSetting['coordinates'],
             objType: 'text'
